@@ -1,5 +1,7 @@
 from typing import Type
 
+from src.model.exceptions.invalid_status_data_error import InvalidStatusDataError
+from src.model.exceptions.unknown_status_key_error import UnknownStatusKeyError
 from src.model.status.delivered import Delivered
 from src.model.status.handling import Handling
 from src.model.status.lost import Lost
@@ -35,7 +37,7 @@ class StatusFactory:
         status = data.get('status')
         sub_status = data.get('substatus')
         if not status:
-            raise RuntimeError(f'Invalid data object. {data}')
+            raise InvalidStatusDataError(data)
         # Transform for comparison
         status = status.lower()
         sub_status = None if not sub_status else sub_status.lower()
@@ -44,7 +46,6 @@ class StatusFactory:
         sub_status_key = f"-{'_'.join(sub_status.split(' '))}" if sub_status else ''
         key = status_key + sub_status_key
         if key not in cls.__INSTANCES:
-            print(key)
-            raise RuntimeError(f'Invalid data object. {data}')
+            raise UnknownStatusKeyError(key, data)
         # Default class is abstract Status
         return cls.__INSTANCES.get(key, Status)
