@@ -14,7 +14,7 @@ from src.model.status.shipped import Shipped
 from src.model.status.soon_deliver import SoonDeliver
 from src.model.status.stolen import Stolen
 from src.model.status.waiting_for_withdrawal import WaitingForWithdrawal
-from src.status_factory import StatusFactory
+from src.service.status.status_factory import StatusFactory
 
 
 class TestStatusFactory(unittest.TestCase):

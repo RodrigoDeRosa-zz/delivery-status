@@ -1,5 +1,5 @@
-from src.status_factory import StatusFactory
-from src.status_sorter import StatusSorter
+from src.service.status.status_factory import StatusFactory
+from src.service.status.status_sorter import StatusSorter
 
 
 class StatusService:

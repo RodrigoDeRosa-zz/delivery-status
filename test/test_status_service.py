@@ -3,9 +3,9 @@ from unittest import mock
 from unittest.mock import call
 
 from src.model.status.handling import Handling
-from src.status_factory import StatusFactory
-from src.status_service import StatusService
-from src.status_sorter import StatusSorter
+from src.service.status.status_factory import StatusFactory
+from src.service.status.status_service import StatusService
+from src.service.status.status_sorter import StatusSorter
 
 
 class TestStatusService(unittest.TestCase):

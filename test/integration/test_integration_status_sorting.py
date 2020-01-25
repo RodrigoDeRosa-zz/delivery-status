@@ -4,7 +4,7 @@ from src.model.exceptions.invalid_status_data_error import InvalidStatusDataErro
 from src.model.exceptions.unknown_status_key_error import UnknownStatusKeyError
 from src.model.status.delivered import Delivered
 from src.model.status.stolen import Stolen
-from src.status_service import StatusService
+from src.service.status.status_service import StatusService
 
 
 class TestIntegrationStatusSorting(unittest.TestCase):
