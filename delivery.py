@@ -1,17 +1,21 @@
-from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
-from tornado.web import Application
 
-from src.handlers.HealthCheckHandler import HealthCheckHandler
+from src.utils.logging.logger import Logger
+from src.utils.setup.app_creator import AppCreator
+from src.utils.setup.server_creator import ServerCreator
 
 
 def start():
-    app = Application([
-        ('/health/health-check', HealthCheckHandler)
-    ])
-    server = HTTPServer(app)
-    server.bind(5000)
-    server.start(1)
+    port = 5000
+    processes = 1
+    Logger.set_up()
+    # Create Tornado application
+    Logger(__name__).info('Setting up application...')
+    app = AppCreator.create_app()
+    # Start server on given port and with given processes
+    ServerCreator.create(app, port).start(processes)
+    Logger(__name__).info(f'Listening on http://localhost:{port}.')
+    # Start event loop
     IOLoop.current().start()
 
 
