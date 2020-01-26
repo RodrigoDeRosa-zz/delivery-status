@@ -1,13 +1,15 @@
 import unittest
 
-from src.model.exceptions.invalid_status_data_error import InvalidStatusDataError
-from src.model.exceptions.unknown_status_key_error import UnknownStatusKeyError
-from src.model.status.delivered import Delivered
-from src.model.status.stolen import Stolen
-from src.service.status.status_service import StatusService
+from tornado.testing import AsyncHTTPTestCase
+from tornado.web import Application
+
+from src.handlers.package_status_handler import PackageStatusHandler
+from src.model.package.status.delivered import Delivered
+from src.model.package.status.stolen import Stolen
+from src.utils.mapping_utils import MappingUtils
 
 
-class TestIntegrationStatusSorting(unittest.TestCase):
+class TestIntegrationStatusSorting(AsyncHTTPTestCase):
 
     def test_full_flow_ok(self):
         notifications = [
@@ -20,7 +22,7 @@ class TestIntegrationStatusSorting(unittest.TestCase):
             {'status': 'shipped', 'substatus': 'waiting for withdrawal'},
             {'status': 'delivered'}
         ]
-        self.__do_test(notifications, Delivered.message())
+        self.__do_test(notifications, {'package': Delivered.message()})
 
     def test_missing_steps(self):
         notifications = [
@@ -30,7 +32,7 @@ class TestIntegrationStatusSorting(unittest.TestCase):
             {'status': 'shipped', 'substatus': 'waiting for withdrawal'},
             {'status': 'delivered'}
         ]
-        self.__do_test(notifications, Delivered.message())
+        self.__do_test(notifications, {'package': Delivered.message()})
 
     def test_stolen(self):
         notifications = [
@@ -41,7 +43,7 @@ class TestIntegrationStatusSorting(unittest.TestCase):
             {'status': 'shipped'},
             {'status': 'not delivered', 'substatus': 'stolen'}
         ]
-        self.__do_test(notifications, Stolen.message())
+        self.__do_test(notifications, {'package': Stolen.message()})
 
     def test_invalid_notifications_raises_exception(self):
         notifications = [
@@ -50,8 +52,7 @@ class TestIntegrationStatusSorting(unittest.TestCase):
             {'status': 'shipped'},
             {'status': 'not delivered', 'substatus': 'stolen'}
         ]
-        with self.assertRaises(InvalidStatusDataError):
-            self.__do_test(notifications, Stolen.message())
+        self.__do_test(notifications, expected_code=400)
 
     def test_unknown_state_raises_exception(self):
         notifications = [
@@ -60,11 +61,18 @@ class TestIntegrationStatusSorting(unittest.TestCase):
             {'status': 'shipped'},
             {'status': 'not delivered', 'substatus': 'returned to office'}
         ]
-        with self.assertRaises(UnknownStatusKeyError):
-            self.__do_test(notifications, Stolen.message())
+        self.__do_test(notifications, expected_code=400)
 
-    def __do_test(self, notifications, expected_result):
-        self.assertEqual(expected_result, StatusService.package_status(notifications))
+    def __do_test(self, notifications, expected_body=None, expected_code=200):
+        request_body = {'id': 'id', 'inputs': notifications}
+        response = self.fetch('/packages', method='POST', body=str(request_body))
+        self.assertEqual(expected_code, response.code)
+        if expected_body:
+            body = MappingUtils.decode_request_body(response.body)
+            self.assertEqual(expected_body, body)
+
+    def get_app(self):
+        return Application([('/packages', PackageStatusHandler)])
 
 
 if __name__ == '__main__':

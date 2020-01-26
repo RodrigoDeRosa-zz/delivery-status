@@ -1,16 +1,16 @@
 from typing import List, Type
 
-from src.model.status.delivered import Delivered
-from src.model.status.handling import Handling
-from src.model.status.lost import Lost
-from src.model.status.manufacturing import Manufacturing
-from src.model.status.printed import Printed
-from src.model.status.ready_to_print import ReadyToPrint
-from src.model.status.shipped import Shipped
-from src.model.status.soon_deliver import SoonDeliver
-from src.model.status.status import Status
-from src.model.status.stolen import Stolen
-from src.model.status.waiting_for_withdrawal import WaitingForWithdrawal
+from src.model.package.status.delivered import Delivered
+from src.model.package.status.handling import Handling
+from src.model.package.status.lost import Lost
+from src.model.package.status.manufacturing import Manufacturing
+from src.model.package.status.printed import Printed
+from src.model.package.status.ready_to_print import ReadyToPrint
+from src.model.package.status.shipped import Shipped
+from src.model.package.status.soon_deliver import SoonDeliver
+from src.model.package.status.status import Status
+from src.model.package.status.stolen import Stolen
+from src.model.package.status.waiting_for_withdrawal import WaitingForWithdrawal
 
 
 class StatusSorter:

@@ -1,4 +1,4 @@
-from src.model.status.status import Status
+from src.model.package.status.status import Status
 
 
 class Printed(Status):
