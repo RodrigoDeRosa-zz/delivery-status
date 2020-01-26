@@ -8,6 +8,7 @@ class Router:
     ROUTES = {
         '/health/health-check': HealthCheckHandler,
         '/packages': PackageStatusHandler
+        # TODO -> Add statistics handler
     }
 
     @classmethod

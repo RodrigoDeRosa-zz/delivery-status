@@ -6,6 +6,7 @@ from src.utils.setup.server_creator import ServerCreator
 
 
 def start():
+    # TODO -> Parameters (port, processes, db[host, port, name, user, pass])
     port = 5000
     processes = 1
     Logger.set_up()

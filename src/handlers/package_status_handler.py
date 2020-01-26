@@ -20,9 +20,11 @@ class PackageStatusHandler(CustomRequestHandler):
         except RuntimeError:
             self.make_error_response(500, self.INTERNAL_ERROR_MESSAGE)
 
+    # TODO -> Get last status for a given package
     # async def get(self):
     #    pass
 
+    # TODO -> Update package's last status
     # async def patch(self):
     #    pass
 
