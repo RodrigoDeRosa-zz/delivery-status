@@ -1,15 +1,30 @@
+import types
 import unittest
 
 from parameterized import parameterized
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 
+from src.database.mongo import Mongo
 from src.handlers.package_status_handler import PackageStatusHandler
 from src.model.package.package_status import PackageStatus
+from src.utils.logging.logger import Logger
 from src.utils.mapping_utils import MappingUtils
+from test.test_utils.mock_logger import MockLogger
 
 
 class TestIntegrationStatusSorting(AsyncHTTPTestCase):
+
+    def setUp(self) -> None:
+        super(TestIntegrationStatusSorting, self).setUp()
+        setattr(Logger,
+                MockLogger.build_logger.__name__,
+                types.MethodType(MockLogger.build_logger, Logger))
+
+    def tearDown(self) -> None:
+        super(TestIntegrationStatusSorting, self).tearDown()
+        # This is ugly but kind of the only way to test the asynchronous database access
+        Mongo._drop_database('test_database')
 
     def test_full_flow_ok(self):
         notifications = [
@@ -85,7 +100,11 @@ class TestIntegrationStatusSorting(AsyncHTTPTestCase):
         if expected_body: self.assertEqual(expected_body, body)
 
     def get_app(self):
-        return Application([('/packages', PackageStatusHandler)])
+        app = Application([('/packages/?(?P<package_id>[^/]+)?', PackageStatusHandler)])
+        # This is ugly but kind of the only way to test the asynchronous database access
+        Mongo.init_async(db_name='test_database')
+        app.settings['db'] = Mongo.get()
+        return app
 
 
 if __name__ == '__main__':

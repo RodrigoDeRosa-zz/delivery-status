@@ -8,25 +8,36 @@ from src.utils.mapping_utils import MappingUtils
 class PackageStatusHandler(CustomRequestHandler):
     """ Handler for package status control. """
 
-    SUPPORTED_METHODS = ['POST']  # ['GET', 'POST', 'PATCH']
+    SUPPORTED_METHODS = ['POST', 'GET', 'PATCH']
 
-    def post(self):
+    async def post(self, package_id):
         try:
             request = PackageStatusRequestMapper.map(self.__parse_body())
-            message = StatusService.package_status(request)
+            message = await StatusService.set_package_status(request)
             self.make_response({'package': message})
         except BusinessError as be:
             self.make_error_response(be.status, be.message)
         except RuntimeError:
             self.make_error_response(500, self.INTERNAL_ERROR_MESSAGE)
 
-    # TODO -> Get last status for a given package
-    # async def get(self):
-    #    pass
+    async def get(self, package_id):
+        try:
+            message = await StatusService.last_known_status(package_id)
+            self.make_response({'package': message})
+        except BusinessError as be:
+            self.make_error_response(be.status, be.message)
+        except RuntimeError:
+            self.make_error_response(500, self.INTERNAL_ERROR_MESSAGE)
 
-    # TODO -> Update package's last status
-    # async def patch(self):
-    #    pass
+    async def patch(self, package_id):
+        try:
+            request = PackageStatusRequestMapper.map(self.__parse_body())
+            message = await StatusService.update_package_status(request)
+            self.make_response({'package': message})
+        except BusinessError as be:
+            self.make_error_response(be.status, be.message)
+        except RuntimeError:
+            self.make_error_response(500, self.INTERNAL_ERROR_MESSAGE)
 
     def __parse_body(self):
         try:

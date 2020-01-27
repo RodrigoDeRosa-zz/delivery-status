@@ -13,7 +13,7 @@ class TestStatusSorter(unittest.TestCase):
         [
             [[], None],
             # This simulates a non included status in the sorting
-            [[Status('')], None],
+            [[Status('', '')], None],
             [[PackageStatus.Handling, PackageStatus.Manufacturing, PackageStatus.ReadyToPrint, PackageStatus.Printed,
               PackageStatus.Shipped, PackageStatus.SoonDeliver, PackageStatus.WaitingForWithdrawal,
               PackageStatus.Delivered], PackageStatus.Delivered],
@@ -25,7 +25,7 @@ class TestStatusSorter(unittest.TestCase):
             [[PackageStatus.SoonDeliver, PackageStatus.Shipped, PackageStatus.Printed], PackageStatus.SoonDeliver],
             [[PackageStatus.Stolen, PackageStatus.Delivered], PackageStatus.Stolen],
             [[PackageStatus.Delivered, PackageStatus.Stolen], PackageStatus.Delivered],
-            [[PackageStatus.Lost, PackageStatus.Stolen, PackageStatus.Delivered], PackageStatus.Lost],
+            [[None, PackageStatus.Lost, PackageStatus.Stolen, PackageStatus.Delivered], PackageStatus.Lost],
         ]
     )
     def test_sorting(self, status_list, expected_result):

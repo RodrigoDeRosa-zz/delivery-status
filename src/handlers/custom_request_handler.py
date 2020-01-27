@@ -1,10 +1,15 @@
 from tornado.web import RequestHandler
 
+from src.database.mongo import Mongo
+
 
 class CustomRequestHandler(RequestHandler):
 
     INTERNAL_ERROR_MESSAGE = 'Internal Server Error. ' \
                              'Our best engineers were [probably] notified and are [probably] running to fix it.'
+
+    def prepare(self):
+        Mongo.set(self.settings['db'])
 
     def data_received(self, chunk):
         pass
