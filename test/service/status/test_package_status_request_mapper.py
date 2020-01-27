@@ -5,7 +5,7 @@ from parameterized import parameterized
 
 from src.model.exceptions.business_error import BusinessError
 from src.model.exceptions.invalid_status_data_error import InvalidStatusDataError
-from src.model.package.status.handling import Handling
+from src.model.package.package_status import PackageStatus
 from src.service.status.package_status_request_mapper import PackageStatusRequestMapper
 from src.service.status.status_factory import StatusFactory
 
@@ -27,12 +27,12 @@ class TestPackageStatusRequestMapper(unittest.TestCase):
     def test_map_ok(self, inputs):
         # Prepare mock
         StatusFactory.create = MagicMock(name='create')
-        StatusFactory.create.return_value = Handling
+        StatusFactory.create.return_value = PackageStatus.Handling
         # Do test
         request_body = {'id': 'some_id', 'inputs': inputs}
         result = PackageStatusRequestMapper.map(request_body)
         self.assertEqual('some_id', result.package_id)
-        self.assertEqual(Handling, result.status_list[0])
+        self.assertEqual(PackageStatus.Handling, result.status_list[0])
         self.assertEqual(len(inputs), len(result.status_list))
         self.assertEqual(len(inputs), StatusFactory.create.call_count)
 

@@ -4,16 +4,8 @@ from parameterized import parameterized
 
 from src.model.exceptions.invalid_status_data_error import InvalidStatusDataError
 from src.model.exceptions.unknown_status_key_error import UnknownStatusKeyError
-from src.model.package.status.delivered import Delivered
-from src.model.package.status.handling import Handling
-from src.model.package.status.lost import Lost
-from src.model.package.status.manufacturing import Manufacturing
-from src.model.package.status.printed import Printed
-from src.model.package.status.ready_to_print import ReadyToPrint
-from src.model.package.status.shipped import Shipped
-from src.model.package.status.soon_deliver import SoonDeliver
-from src.model.package.status.stolen import Stolen
-from src.model.package.status.waiting_for_withdrawal import WaitingForWithdrawal
+
+from src.model.package.package_status import PackageStatus
 from src.service.status.status_factory import StatusFactory
 
 
@@ -21,25 +13,25 @@ class TestStatusFactory(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ['handling', None, Handling],
-            ['Handling', None, Handling],
-            ['HANDLING', None, Handling],
-            ['handling', 'manufacturing', Manufacturing],
-            ['handling', 'Manufacturing', Manufacturing],
-            ['handling', 'MANUFACTURING', Manufacturing],
-            ['ready to ship', 'ready to print', ReadyToPrint],
-            ['ready to ship', 'Ready To Print', ReadyToPrint],
-            ['ready to ship', 'Ready to print', ReadyToPrint],
-            ['READY TO SHIP', 'READY TO PRINT', ReadyToPrint],
-            ['ready to ship', 'printed', Printed],
-            ['shipped', None, Shipped],
-            ['shipped', 'soon deliver', SoonDeliver],
+            ['handling', None, PackageStatus.Handling],
+            ['Handling', None, PackageStatus.Handling],
+            ['HANDLING', None, PackageStatus.Handling],
+            ['handling', 'manufacturing', PackageStatus.Manufacturing],
+            ['handling', 'Manufacturing', PackageStatus.Manufacturing],
+            ['handling', 'MANUFACTURING', PackageStatus.Manufacturing],
+            ['ready to ship', 'ready to print', PackageStatus.ReadyToPrint],
+            ['ready to ship', 'Ready To Print', PackageStatus.ReadyToPrint],
+            ['ready to ship', 'Ready to print', PackageStatus.ReadyToPrint],
+            ['READY TO SHIP', 'READY TO PRINT', PackageStatus.ReadyToPrint],
+            ['ready to ship', 'printed', PackageStatus.Printed],
+            ['shipped', None, PackageStatus.Shipped],
+            ['shipped', 'soon deliver', PackageStatus.SoonDeliver],
             # I wouldn't call this a bug. It has no sense to check these cases
-            ['shipped', 'soon_deliver', SoonDeliver],
-            ['shipped', 'waiting for withdrawal', WaitingForWithdrawal],
-            ['delivered', None, Delivered],
-            ['not delivered', 'stolen', Stolen],
-            ['not delivered', 'lost', Lost],
+            ['shipped', 'soon_deliver', PackageStatus.SoonDeliver],
+            ['shipped', 'waiting for withdrawal', PackageStatus.WaitingForWithdrawal],
+            ['delivered', None, PackageStatus.Delivered],
+            ['not delivered', 'stolen', PackageStatus.Stolen],
+            ['not delivered', 'lost', PackageStatus.Lost],
         ]
     )
     def test_mapping_ok(self, status, sub_status, expected_class):

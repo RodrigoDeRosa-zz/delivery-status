@@ -1,38 +1,27 @@
-from typing import Type
-
 from src.model.exceptions.invalid_status_data_error import InvalidStatusDataError
 from src.model.exceptions.unknown_status_key_error import UnknownStatusKeyError
-from src.model.package.status.delivered import Delivered
-from src.model.package.status.handling import Handling
-from src.model.package.status.lost import Lost
-from src.model.package.status.manufacturing import Manufacturing
-from src.model.package.status.printed import Printed
-from src.model.package.status.ready_to_print import ReadyToPrint
-from src.model.package.status.shipped import Shipped
-from src.model.package.status.soon_deliver import SoonDeliver
-from src.model.package.status.status import Status
-from src.model.package.status.stolen import Stolen
-from src.model.package.status.waiting_for_withdrawal import WaitingForWithdrawal
+from src.model.package.package_status import PackageStatus
+from src.model.package.status import Status
 
 
 class StatusFactory:
 
     # This is a way of avoiding a big chunk of ifs
     __INSTANCES = {
-        'handling': Handling,
-        'handling-manufacturing': Manufacturing,
-        'ready_to_ship-ready_to_print': ReadyToPrint,
-        'ready_to_ship-printed': Printed,
-        'shipped': Shipped,
-        'shipped-soon_deliver': SoonDeliver,
-        'shipped-waiting_for_withdrawal': WaitingForWithdrawal,
-        'delivered': Delivered,
-        'not_delivered-stolen': Stolen,
-        'not_delivered-lost': Lost
+        'handling': PackageStatus.Handling,
+        'handling-manufacturing': PackageStatus.Manufacturing,
+        'ready_to_ship-ready_to_print': PackageStatus.ReadyToPrint,
+        'ready_to_ship-printed': PackageStatus.Printed,
+        'shipped': PackageStatus.Shipped,
+        'shipped-soon_deliver': PackageStatus.SoonDeliver,
+        'shipped-waiting_for_withdrawal': PackageStatus.WaitingForWithdrawal,
+        'delivered': PackageStatus.Delivered,
+        'not_delivered-stolen': PackageStatus.Stolen,
+        'not_delivered-lost': PackageStatus.Lost
     }
 
     @classmethod
-    def create(cls, data: dict) -> Type[Status]:
+    def create(cls, data: dict) -> Status:
         # Extract elements from object
         status = data.get('status')
         sub_status = data.get('substatus')
@@ -48,4 +37,4 @@ class StatusFactory:
         if key not in cls.__INSTANCES:
             raise UnknownStatusKeyError(data)
         # Default class is abstract Status
-        return cls.__INSTANCES.get(key, Status)
+        return cls.__INSTANCES[key]

@@ -5,8 +5,7 @@ from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 
 from src.handlers.package_status_handler import PackageStatusHandler
-from src.model.package.status.delivered import Delivered
-from src.model.package.status.stolen import Stolen
+from src.model.package.package_status import PackageStatus
 from src.utils.mapping_utils import MappingUtils
 
 
@@ -24,7 +23,7 @@ class TestIntegrationStatusSorting(AsyncHTTPTestCase):
             {'status': 'delivered'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, {'package': Delivered.message()})
+        self.__do_test(request_body, {'package': PackageStatus.Delivered.message()})
 
     def test_missing_steps(self):
         notifications = [
@@ -35,7 +34,7 @@ class TestIntegrationStatusSorting(AsyncHTTPTestCase):
             {'status': 'delivered'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, {'package': Delivered.message()})
+        self.__do_test(request_body, {'package': PackageStatus.Delivered.message()})
 
     def test_stolen(self):
         notifications = [
@@ -47,7 +46,7 @@ class TestIntegrationStatusSorting(AsyncHTTPTestCase):
             {'status': 'not delivered', 'substatus': 'stolen'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, {'package': Stolen.message()})
+        self.__do_test(request_body, {'package': PackageStatus.Stolen.message()})
 
     def test_invalid_notifications_raises_exception(self):
         notifications = [
