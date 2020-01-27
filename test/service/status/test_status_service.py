@@ -51,6 +51,8 @@ class TestStatusService(unittest.IsolatedAsyncioTestCase):
         self.assertTrue('Package with id' in context.exception.message)
         self.assertEqual(0, sorter_mock.call_count)
 
+    # TODO -> Add tests for the other two methods
+
     async def __exists_mock_coroutine(self, package_id):
         """ This is needed to mock coroutines """
         return self.exists_result
