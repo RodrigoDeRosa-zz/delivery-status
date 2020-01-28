@@ -105,7 +105,14 @@ En este caso, la respuesta será de la forma:
 Donde el número indica la cantidad de paquetes que actualmente se encuentran en la
 base de datos para cada una de las categorías (y en total).
 
-**Nota:** Si bien el servidor almacena sólo el último estado conocido de cada paquete,
+**Nota:** Actualmente el servidor consulta a la base de datos cada vez que recibe
+un request en este endpoint. Una forma de alivianar la carga sería calcular dichas
+estadisticas periódicamente, con un período relativamente chico, y devolver 
+directamente el valor calculado. Si bien habría inconsistencias eventuales, al tener
+mayor cantidad de datos en la base, se ganaría tiempo y se evitaría hacer muchas
+veces consultas que generen una carga importante.
+
+**Nota 2:** Si bien el servidor almacena sólo el último estado conocido de cada paquete,
 se podrían almacenar todos los estados, en el orden en que se recibieron, para
 poder obtener también estadísticas sobre eventos no recibidos. Extendiendo esto, 
 se podría también añadir timestamps al registro de cada evento, para determinar
