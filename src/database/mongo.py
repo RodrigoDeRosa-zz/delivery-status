@@ -47,7 +47,7 @@ class Mongo:
         # Create auth string from parameters
         auth = f'{user}:{password}@' if user and password else ''
         # Create database URI
-        return f'mongodb://{auth}{host}:{port}/{db_name}'
+        return f'mongodb://{auth}{host}:{port}/{db_name}?retryWrites=false'
 
     @classmethod
     def get_logger(cls):
