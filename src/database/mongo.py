@@ -13,10 +13,10 @@ class Mongo:
     def init(cls, host='localhost', port=27017, db_name='delivery_status', user=None, password=None):
         """ Create database with asynchronous connector."""
         cls.get_logger().info('Establishing database connection...')
-        uri = cls.__create_uri(host, port, user, password)
+        uri = cls.__create_uri(host, port, user, password, db_name)
         # Create db client
         cls.__CLIENT = MotorClient(uri)
-        cls.DB = cls.__CLIENT[db_name]
+        cls.DB = cls.__CLIENT.get_default_database()
 
     @classmethod
     def create_indexes(cls):
@@ -42,12 +42,12 @@ class Mongo:
         cls.__CLIENT.drop_database(db_name)
 
     @classmethod
-    def __create_uri(cls, host, port, user, password):
+    def __create_uri(cls, host, port, user, password, db_name):
         """ Generates database URI"""
         # Create auth string from parameters
         auth = f'{user}:{password}@' if user and password else ''
         # Create database URI
-        return f'mongodb://{auth}{host}:{port}'
+        return f'mongodb://{auth}{host}:{port}/{db_name}'
 
     @classmethod
     def get_logger(cls):
