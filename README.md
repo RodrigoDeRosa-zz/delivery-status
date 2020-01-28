@@ -17,11 +17,11 @@ Los paquetes se añaden realizando un HTTP request del estilo:
 ```http request
 POST /packages
 {
-  "id": String,
+  "id": "package_id",
   "inputs": [
     {
-      "status": String,
-      "substatus": Optional[String]
+      "status": "string",
+      "substatus": "nullable string"
     }
   ]
 }
@@ -54,11 +54,11 @@ su entrega) realizando un request HTTP con la forma:
 ```http request
 PATCH /packages
 {
-  "id": String,
+  "id": "package_id",
   "inputs": [
     {
-      "status": String,
-      "substatus": Optional[String]
+      "status": "string",
+      "substatus": "nullable string"
     }
   ]
 }
@@ -84,7 +84,7 @@ GET /packages/statistics
 
 En este caso, la respuesta será de la forma:
 
-```http request
+```
 {
   "packages_count": 1,
   "count_by_category": {
@@ -182,7 +182,7 @@ la velocidad vuelve a la normalidad (el timeout para "dormir" el server es de un
 Una posible forma de implementar la geolocalización de un paquete sería añadir
 un endpoint `/packages/<package_id>/location` con un body del estilo:
 
-```http request
+```
 {
   "lat": -34.547244,
   "lon": -58.489286
