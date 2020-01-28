@@ -10,7 +10,7 @@ class StatisticsService:
         """ Gather information about the processed packages. """
         cls.get_logger().info('Retrieving server statistics.')
         packages_count = await PackageDAO.count()
-        count_by_category = {status: await PackageDAO.count(status=status) for status in PackageStatus().__dir__()}
+        count_by_category = {status: await PackageDAO.count(status=status) for status in dir(PackageStatus())}
         return {'packages_count': packages_count, 'count_by_category': count_by_category}
 
     @classmethod
