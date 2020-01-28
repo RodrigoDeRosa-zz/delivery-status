@@ -1,5 +1,6 @@
 from src.handlers.health_check_handler import HealthCheckHandler
 from src.handlers.package_status_handler import PackageStatusHandler
+from src.handlers.statistics_handler import StatisticsHandler
 
 
 class Router:
@@ -7,8 +8,8 @@ class Router:
     # Dictionary to map route to Tornado RequestHandler subclasses
     ROUTES = {
         '/health/health-check': HealthCheckHandler,
+        '/packages/statistics': StatisticsHandler,
         '/packages/?(?P<package_id>[^/]+)?': PackageStatusHandler
-        # TODO -> Add statistics handler
     }
 
     @classmethod

@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from src.model.package.status import Status
 
 
@@ -13,3 +15,7 @@ class PackageStatus:
     Delivered = Status('Entregado', 'Delivered')
     Lost = Status('Perdido', 'Lost')
     Stolen = Status('Robado', 'Stolen')
+
+    def __dir__(self) -> Iterable[str]:
+        result = super(PackageStatus, self).__dir__()
+        return [elem for elem in result if '__' not in elem]

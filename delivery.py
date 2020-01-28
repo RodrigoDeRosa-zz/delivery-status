@@ -19,6 +19,7 @@ def start():
     # Establish database connection for each process
     db_data = {}  # TODO
     Mongo.init(**db_data)
+    Mongo.create_indexes()
     app.settings['db'] = Mongo.get()
     # Start event loop
     Logger(__name__).info(f'Listening on http://localhost:{port}.')

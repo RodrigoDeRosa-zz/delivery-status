@@ -23,5 +23,14 @@ class PackageDAO(GenericDAO):
         await cls.upsert({'_id': package_id}, {'$set': {'last_status': last_status}})
 
     @classmethod
+    async def count(cls, status=None):
+        query = {} if not status else {'last_status': status}
+        return await cls.collection().count_documents(query)
+
+    @classmethod
+    def create_indexes(cls, db):
+        db.packages.create_index('last_status')
+
+    @classmethod
     def collection(cls):
         return Mongo.get().packages

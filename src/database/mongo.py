@@ -19,6 +19,14 @@ class Mongo:
         cls.DB = cls.__CLIENT[db_name]
 
     @classmethod
+    def create_indexes(cls):
+        """ Create indexes for all collections. """
+        # Imports need to be here to avoid circular import issues.
+        from src.database.package_dao import PackageDAO
+        cls.get_logger().info('Configuring database indexes...')
+        PackageDAO.create_indexes(cls.DB)
+
+    @classmethod
     def set(cls, db):
         # The received db will always be the same object so concurrence won't be a problem.
         # This is just for a more comfortable usage
