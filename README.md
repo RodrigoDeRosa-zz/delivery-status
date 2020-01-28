@@ -30,7 +30,7 @@ POST /packages
 La respuesta a dicho request será del estilo:
 
 ```http request
-{"pacakge": String}
+{"pacakge": "status message"}
 ```
 
 Donde `package` será el mensaje asociado al último estado conocido del paquete.
