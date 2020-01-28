@@ -3,3 +3,4 @@ tornado
 motor
 pymongo
 mongomock
+coverage

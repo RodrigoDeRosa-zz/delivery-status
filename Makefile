@@ -13,3 +13,8 @@ run:
 test:
 	. venv/bin/activate; \
     python -m unittest discover -s test -p test*.py;
+
+coverage:
+	. venv/bin/activate; \
+	coverage run -m unittest discover -s test -p test*.py;
+	coverage report;
