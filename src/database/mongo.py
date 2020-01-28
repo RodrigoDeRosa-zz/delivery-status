@@ -10,7 +10,7 @@ class Mongo:
     DB = None
 
     @classmethod
-    def init_async(cls, host='localhost', port=27017, db_name='delivery_status', user=None, password=None):
+    def init(cls, host='localhost', port=27017, db_name='delivery_status', user=None, password=None):
         """ Create database with asynchronous connector."""
         cls.get_logger().info('Establishing database connection...')
         uri = cls.__create_uri(host, port, user, password)

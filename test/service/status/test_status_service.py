@@ -51,7 +51,32 @@ class TestStatusService(unittest.IsolatedAsyncioTestCase):
         self.assertTrue('Package with id' in context.exception.message)
         self.assertEqual(0, sorter_mock.call_count)
 
-    # TODO -> Add tests for the other two methods
+    async def test_last_known_status_ok(self):
+        self.find_result = PackageStatus.Handling
+        result = await StatusService.last_known_status('id')
+        self.assertEqual(PackageStatus.Handling.message(), result)
+
+    async def test_last_known_status_non_existent_package_raises_exception(self):
+        self.find_result = None
+        with self.assertRaises(BusinessError) as context:
+            await StatusService.last_known_status('id')
+        self.assertEqual('No package found with id id', context.exception.message)
+
+    @mock.patch.object(StatusSorter, 'last_status', return_value=PackageStatus.Handling)
+    async def test_update_package_status_ok(self, sorter_mock):
+        self.find_result = PackageStatus.Handling
+        result = await StatusService.update_package_status(PackageStatusRequest('id', [PackageStatus.Handling]))
+        self.assertEqual(PackageStatus.Handling.message(), result)
+        self.assertEqual(1, sorter_mock.call_count)
+        self.assertEqual([PackageStatus.Handling, PackageStatus.Handling], sorter_mock.call_args[0][0])
+
+    @mock.patch.object(StatusSorter, 'last_status', return_value=PackageStatus.Handling)
+    async def test_update_package_status_with_no_previous_status(self, sorter_mock):
+        self.find_result = None
+        result = await StatusService.update_package_status(PackageStatusRequest('id', [PackageStatus.Handling]))
+        self.assertEqual(PackageStatus.Handling.message(), result)
+        self.assertEqual(1, sorter_mock.call_count)
+        self.assertEqual([PackageStatus.Handling, None], sorter_mock.call_args[0][0])
 
     async def __exists_mock_coroutine(self, package_id):
         """ This is needed to mock coroutines """

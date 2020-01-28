@@ -18,7 +18,7 @@ def start():
     ServerCreator.create(app, port).start(processes)
     # Establish database connection for each process
     db_data = {}  # TODO
-    Mongo.init_async(**db_data)
+    Mongo.init(**db_data)
     app.settings['db'] = Mongo.get()
     # Start event loop
     Logger(__name__).info(f'Listening on http://localhost:{port}.')

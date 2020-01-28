@@ -38,7 +38,7 @@ class TestIntegrationPackageStatus(AsyncHTTPTestCase):
             {'status': 'delivered'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, {'package': PackageStatus.Delivered.message()})
+        self.__do_test('/packages', 'POST', request_body, {'package': PackageStatus.Delivered.message()})
 
     def test_missing_steps(self):
         notifications = [
@@ -49,7 +49,7 @@ class TestIntegrationPackageStatus(AsyncHTTPTestCase):
             {'status': 'delivered'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, {'package': PackageStatus.Delivered.message()})
+        self.__do_test('/packages', 'POST', request_body, {'package': PackageStatus.Delivered.message()})
 
     def test_stolen(self):
         notifications = [
@@ -61,7 +61,7 @@ class TestIntegrationPackageStatus(AsyncHTTPTestCase):
             {'status': 'not delivered', 'substatus': 'stolen'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, {'package': PackageStatus.Stolen.message()})
+        self.__do_test('/packages', 'POST', request_body, {'package': PackageStatus.Stolen.message()})
 
     def test_invalid_notifications_raises_exception(self):
         notifications = [
@@ -71,7 +71,7 @@ class TestIntegrationPackageStatus(AsyncHTTPTestCase):
             {'status': 'not delivered', 'substatus': 'stolen'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, expected_code=400, error_extract='Invalid')
+        self.__do_test('/packages', 'POST', request_body, expected_code=400, error_extract='Invalid')
 
     def test_unknown_state_raises_exception(self):
         notifications = [
@@ -81,7 +81,7 @@ class TestIntegrationPackageStatus(AsyncHTTPTestCase):
             {'status': 'not delivered', 'substatus': 'returned to office'}
         ]
         request_body = {'id': 'id', 'inputs': notifications}
-        self.__do_test(request_body, expected_code=400, error_extract='Unknown')
+        self.__do_test('/packages', 'POST', request_body, expected_code=400, error_extract='Unknown')
 
     @parameterized.expand([
         [{'id': '', 'inputs': [{'status': 'handling'}]}, 'ID field'],
@@ -90,21 +90,35 @@ class TestIntegrationPackageStatus(AsyncHTTPTestCase):
         [{'id': 'id'}, 'Inputs']
     ])
     def test_invalid_request_body(self, request_body, error_extract):
-        self.__do_test(request_body, expected_code=400, error_extract=error_extract)
+        self.__do_test('/packages', 'POST', request_body, expected_code=400, error_extract=error_extract)
 
-    def __do_test(self, request_body, expected_body=None, expected_code=200, error_extract=None):
-        response = self.fetch('/packages', method='POST', body=str(request_body))
+    def test_store_and_check(self):
+        self.__do_test('/packages', 'POST', {'id': 'id', 'inputs': [{'status': 'delivered'}]})
+        self.__do_test('/packages/id', 'GET', expected_body={'package': 'Entregado'})
+
+    def test_get_unknown_package(self):
+        self.__do_test('/packages/id', 'GET', expected_code=400, error_extract='No package found')
+
+    def test_store_and_update(self):
+        self.__do_test('/packages', 'POST', {'id': 'id', 'inputs': [{'status': 'handling'}]})
+        self.__do_test('/packages', 'PATCH', {'id': 'id', 'inputs': [{'status': 'delivered'}]},
+                       expected_body={'package': 'Entregado'})
+
+    def test_update_non_existent_package(self):
+        self.__do_test('/packages', 'PATCH', {'id': 'id', 'inputs': [{'status': 'shipped'}]},
+                       expected_body={'package': 'En Camino'})
+
+    def __do_test(self, path, method, request_body=None, expected_body=None, expected_code=200, error_extract=None):
+        response = self.fetch(path, method=method, body=None if not request_body else str(request_body))
         self.assertEqual(expected_code, response.code)
         body = MappingUtils.decode_request_body(response.body)
         if error_extract: self.assertTrue(error_extract in body['message'])
         if expected_body: self.assertEqual(expected_body, body)
 
-    # TODO -> Add tests for the other methods
-
     def get_app(self):
         app = Application([('/packages/?(?P<package_id>[^/]+)?', PackageStatusHandler)])
         # This is ugly but kind of the only way to test the asynchronous database access
-        Mongo.init_async(db_name='test_database')
+        Mongo.init(db_name='test_database')
         app.settings['db'] = Mongo.get()
         return app
 
