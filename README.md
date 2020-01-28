@@ -195,3 +195,25 @@ paquete y almacenar o:
 * La última posición, para ahorrar espacio de almacenamiento
 * Todas las posiciones registradas, para poder crear un camino si fuera necesario
 y para poder analizar posibles requests perdidos o que lleguen en orden indeseado.
+
+## Escalabilidad del servidor
+
+Uno de los parámetros que acepta el servidor es `--proc`; este parámetro permite
+indicar la cantidad de procesos que se desear que el mismo tenga, siendo el valor
+`0` el que indica que se levanten tantos procesos como cores tenga el procesador
+de la máquina en cuestión. Esto, sumado a que `Tornado` utiliza las corutinas de 
+python para atender la máxima cantidad de requests simultáneos, permite responder
+una gran cantidad de requests fácilmente.
+
+Por las características del problema, es posible agregar múltiples instancias
+independientes que apunten a la misma base de datos para aumentar la disponibilidad.
+Esto sería sencillo ya que los parámetros de conexión a Mongo se cargan al levantar
+el servidor.
+
+En cuanto a la concurrencia de requests, actualmente no se tuvo en cuenta el caso
+en el que más de un request de actualización para un mismo paquete entre en el 
+mismo momento. En este caso, se podría dar una condición de carrera en la que quede
+registrado en la base de datos el cambio introducido por sólo uno de ellos.
+Para evitar esto (y que sea escalable), se podría utilizar un servicio de locks
+distribuidos que permita lockear el acceso a un paquete mientras se lo actualiza.
+Un ejemplo es [etcd](https://etcd.io/).
