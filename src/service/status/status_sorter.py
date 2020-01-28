@@ -6,7 +6,7 @@ from src.model.package.status import Status
 
 class StatusSorter:
 
-    # This allows us to keep out of each class the order of events and, also, allows us to have more than one
+    # This allows us to keep out of each status type the order of events and, also, allows us to have more than one
     # status per level. For example, an already delivered item shouldn't be able to get lost or stolen.
     __STATUS_ORDER = [
         [PackageStatus.Handling],
