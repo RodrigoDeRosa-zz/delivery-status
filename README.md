@@ -1,18 +1,16 @@
 # Package Status Control
 
-## Documentación del servidor
+## Server documentation
 
-El servidor tiene dos endpoints principales: el de control de estados de paquetes y
-el de estadísticas.
+The server has two main endpoints: one for package status control and one for statistics.
 
-### Control de estados
+### Status control
 
-El servidor permite añadir paquetes y sus estados, ver su último estado y 
-actualizar el mismo.
+The server allows package addition with it's associated status, check a package's last status and update said status.
 
-#### Añadido de paquetes
+#### Package addition
 
-Los paquetes se añaden realizando un HTTP request del estilo:
+Packages can be added by sending an HTTP as follows:
 
 ```http request
 POST /packages
@@ -27,29 +25,28 @@ POST /packages
 }
 ```
 
-La respuesta a dicho request será del estilo:
+The server's response for said request will be as follows:
 
 ```http request
 {"pacakge": "status message"}
 ```
 
-Donde `package` será el mensaje asociado al último estado conocido del paquete.
+Where `package` will be the message associated to the package's last known status.
 
-#### Consulta de último estado conocido
+#### Last known status
 
-Es posible ver el último estado conocido de un paquete haciendo un request HTTP con
-la forma:
+It is possible to get a package's last known status by doing the following HTTP request:
 
 ```http request
 GET /packages/<package_id>
 ```
 
-La respuesta a este request será igual al caso anterior.
+In this case, the server's answer will be the same as before.
 
-#### Actualización de estado de un paquete
+#### Package status update
 
-Es posible actualizar el estado de un paquete (siempre avanzando en el camino a
-su entrega) realizando un request HTTP con la forma:
+It is possible to update a package's status (always going forward in the path to delivery) by doing an HTTP request
+with the following characteristics:
 
 ```http request
 PATCH /packages
@@ -63,26 +60,24 @@ PATCH /packages
   ]
 }
 ```
+The answer, again, will be as in the first scenario.
 
-La respuesta, nuevamente, será igual al primer caso.
+**Note:** Probably, the most logical solution here would be to send the package ID as a path parameter, leaving the
+body just for the input list. Anyway, to avoid two different mappings in this simple solution, the request schema
+is the same as in the `POST` request.
 
-**Nota:** Tal vez lo más lógico acá sería que el package id fuera un path param
-y el body sólo trajera los inputs; pero para evitar definir dos mapeos distintos,
-en este caso se optó por usar la misma modalidad que en el `POST`.
+**Delivery tracking:** This endpoint allows to update a package's status as it progresses in it's way to be delivered.
 
-**Seguimiento de un envío:** Este endpoint permite actualizar el estado de un
-paquete a medida que el mismo va progresando en su envío.
+### Statistics
 
-### Estadísticas
-
-Se podrá consultar información general sobre los paquetes registrados en el 
-servidor realizando el siguiente request HTTP:
+It's possible to query some general information about the registered information in the server by doing the following
+HTTP request:
 
 ```http request
 GET /packages/statistics
 ```
 
-En este caso, la respuesta será de la forma:
+In this case, the answer will be as follows:
 
 ```
 {
@@ -101,93 +96,86 @@ En este caso, la respuesta será de la forma:
   }
 }
 ```
+Where `packages_count` indicates the number of packages currently stored in the database and the rest of the fields in
+the response refer to each category.
 
-Donde el número indica la cantidad de paquetes que actualmente se encuentran en la
-base de datos para cada una de las categorías (y en total).
+**Note:** In this implementation, the server queries the database every time a request is received in this endpoint. A
+way to ease the burden on the connection between the server and the database would be to calculate these statistics
+periodically, with a relatively small period, and return directly a value stored in memory. Although there would be
+eventual inconsistencies, in those cases where the amount of data in the database is larger, a lot of time would be
+saved on each request and a heavy load on the link between server and database would be avoided.
 
-**Nota:** Actualmente el servidor consulta a la base de datos cada vez que recibe
-un request en este endpoint. Una forma de alivianar la carga sería calcular dichas
-estadisticas periódicamente, con un período relativamente chico, y devolver 
-directamente el valor calculado. Si bien habría inconsistencias eventuales, al tener
-mayor cantidad de datos en la base, se ganaría tiempo y se evitaría hacer muchas
-veces consultas que generen una carga importante.
-
-**Nota 2:** Si bien el servidor almacena sólo el último estado conocido de cada paquete,
-se podrían almacenar todos los estados, en el orden en que se recibieron, para
-poder obtener también estadísticas sobre eventos no recibidos. Extendiendo esto, 
-se podría también añadir timestamps al registro de cada evento, para determinar
-tiempos entre los cambios de estado.
+**Note 2:** Even though the server stores only the last known status of each package, it would be an option to store
+every known status, in the order they were received, to have also statistics of events lost in the way of the delivery
+process. Moreover, these stored object could have timestamps which could be used to calculate some statistics about
+time taken between status changes.
 
 ### Health Check
 
-El servidor también tiene expuesto el endpoint `/health/health-check`, que permite
-realizar un control sobre la salud del mismo. La respuesta es simplemente un 
-HTTP status OK.
+The server has exposed the endpoint `/health/health-check`, created with the sole purpose of health control. The 
+response is always an HTTP status OK (200).
 
-## Ejecución local
+## Local Execution
 
 ### Docker
 
-Para levantar el server localmente con `Docker` y `docker-compose`, es necesario 
-tener instaladas ambas cosas. Las cuales se pueden obtener en:
+To start the server locally with `Docker` and `docker-compose`, it's necessary to have both of these things installed.
+You can get them from:
 
 * [Docker - Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * [Docker - Mac](https://docs.docker.com/docker-for-mac/install/)
 * [docker-compose](https://docs.docker.com/compose/install/)
 
-Con esto instalado, simplemente se debe ejecutar el comando 
-`docker-compose up --build` en el root del proyecto. Si se quisiera correr en 
-background, ejecutar `docker-compose up --build -d`. Para apagarlo en este segundo
-escenario, ejecutar `docker-compose down`.
+Once all this is installed, it's simply needed to execute `docker-compose up --build` in the project's root folder. 
+Background execution needs the addition of one docker parameter, resulting in `docker-compose up --build -d`. In this
+second scenario, run `docker-compose down` to stop it.
 
-En este caso, el contenedor Docker tendrá un volumen donde alojará la base de datos
-MongoDB e iniciará el servidor como un servicio.
+When running the server with Docker, the container will create a volume where it will host the MongoDB server and will
+start the server in question as a Docker service.
 
 ### Makefile
 
-Es posible iniciar el servidor ejecutando los comandos:
+It's also possible to start the server by executing:
 
 * `make prepare`
 * `make run`
 
-Para esto, es necesario:
+To do this, it's necessary to:
 
-* Tener instalado `python 3.8` en el sistema.
-* Tener instalado `mongo` en el sistema, corriendo en el puerto 27017.
+* Have `python 3.8` installed in your system.
+* Have `mongo`  installed in your system, running on port 27017.
 
 ### Testing
 
-#### Ejecución de tests
+#### Test Execution
 
-Para correr los tests, se deben ejecutar los comandos:
+To execute the tests, run the following commands:
 
 * `make prepare`
 * `make test`
 
+To do this, it's neecessary to:
 Se debe tener en cuenta que es necesario:
 
-* Tener instalado `python 3.8` en el sistema.
-* Tener instalado `mongo` en el sistema, corriendo en el puerto 27017. Esto es
-necesario para ejecutar algunos tests de integración, ya que no existe un simil
-`::inmemory` para mongo.
+* Have `python 3.8` installed in your system.
+* Have `mongo` installed in your system, running on port 27017. This is necessary for integration tests due to the lack
+of an `::inmemory` option for MongoDB in Python.
 
 #### Coverage
-Similar al caso anterior, una vez preparado el entorno, se debe ejecutar el comando
-`make coverage`.
+
+Similar to the previous case, once prepared the environment, execute command `make coverage`
 
 ## Online Server
 
-El servidor está corriendo en una instancia de [Heroku](https://www.heroku.com/).
-La url base de la misma es https://package-status.herokuapp.com. Por ser el free
-tier, es probable que el primer request que se realice despues de un tiempo
-"despierte" al servidor, por lo cual tarde un tiempo relativamente largo; luego,
-la velocidad vuelve a la normalidad (el timeout para "dormir" el server es de unos
-30 minutos).
+The server is running on a [Heroku](https://www.heroku.com/) instance. The base URL for it is 
+`https://package-status.herokuapp.com`. Being it hosted with a free tier account, it's possible for the first request
+to take some time as it "awakes" the instance; after this, the response speed goes back to normal. I believe the
+inactivity time to sleep for a Heroku instance is about 30 minutes.
 
-## Geolocalización
+## Geolocation
 
-Una posible forma de implementar la geolocalización de un paquete sería añadir
-un endpoint `/packages/<package_id>/location` con un body del estilo:
+A possible way of implementing geolocation for a package would be to add the endpoint `/packages/<package_id>/location`,
+which would receive a body as follows:
 
 ```
 {
@@ -196,31 +184,25 @@ un endpoint `/packages/<package_id>/location` con un body del estilo:
 }
 ```
 
-Se podrían hacer requests periódicos al mismo para registrar el movimiento del
-paquete y almacenar o:
+Requests could be made periodically to this endpoint in order to register the movement of a package and store either:
 
-* La última posición, para ahorrar espacio de almacenamiento
-* Todas las posiciones registradas, para poder crear un camino si fuera necesario
-y para poder analizar posibles requests perdidos o que lleguen en orden indeseado.
+* It's last position, to save storage space.
+* All registered positions, to be able to create a path if it was necessary and to be able to analyze all possible
+lost or disordered requests.
 
-## Escalabilidad del servidor
+## Server scalability
 
-Uno de los parámetros que acepta el servidor es `--proc`; este parámetro permite
-indicar la cantidad de procesos que se desear que el mismo tenga, siendo el valor
-`0` el que indica que se levanten tantos procesos como cores tenga el procesador
-de la máquina en cuestión. Esto, sumado a que `Tornado` utiliza las corutinas de 
-python para atender la máxima cantidad de requests simultáneos, permite responder
-una gran cantidad de requests fácilmente.
+One of the parameters the server can receive is `--proc`; this parameter lets the user indicate how many processes will
+the server have, being `0` equal to as many processes as cores the machine processor has. This, in addition to 
+`Tornado`'s usage of Python's coroutines to handle as many simultaneous requests, allows the server to easily answer a 
+great number of requests.
 
-Por las características del problema, es posible agregar múltiples instancias
-independientes que apunten a la misma base de datos para aumentar la disponibilidad.
-Esto sería sencillo ya que los parámetros de conexión a Mongo se cargan al levantar
-el servidor.
+Because of the problem's characteristics, it's possible to add multiple independent instances connected to the same
+database to increase the availability of the service. This would be easy as the database connection parameters are
+loaded when the server starts.
 
-En cuanto a la concurrencia de requests, actualmente no se tuvo en cuenta el caso
-en el que más de un request de actualización para un mismo paquete entre en el 
-mismo momento. En este caso, se podría dar una condición de carrera en la que quede
-registrado en la base de datos el cambio introducido por sólo uno de ellos.
-Para evitar esto (y que sea escalable), se podría utilizar un servicio de locks
-distribuidos que permita lockear el acceso a un paquete mientras se lo actualiza.
-Un ejemplo es [etcd](https://etcd.io/).
+Regarding the request concurrence, this solution didn't take into account the case where more than one update request
+for the same package is received. In this case, a race condition could take place where the database ends up with an
+invalid status for a package (only the last received request will have stored it's update). To avoid this (and make
+the server scalable), a distributed lock server could be set up to avoid clashes between requests that try to update
+the same package. One example of such server is [etcd](https://etcd.io/).
