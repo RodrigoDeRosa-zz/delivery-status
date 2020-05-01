@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  # WhiteChristmas application
+  # Delivery application
   delivery:
     build:
       context: .
